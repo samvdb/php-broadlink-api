@@ -124,7 +124,6 @@ final class BroadlinkFactory
     public static function create($h, $m, $p, $d)
     {
         $class = null;
-        var_dump($d);
         switch (self::getType($d)) {
             case 0:
                 $class = SP1::class;
