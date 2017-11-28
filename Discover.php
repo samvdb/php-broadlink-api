@@ -1,7 +1,6 @@
-<?
-include("include/broadlink.class.php");
+<?php
+require_once("include/broadlink.class.php");
 
-header('Content-Type: application/json');
 
 $result = array();
 

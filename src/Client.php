@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Broadlink;
 
 use Broadlink\Device\AbstractDevice;
+use Broadlink\Factory\BroadlinkFactory;
 use Broadlink\Helper\SocketHelper;
 use Broadlink\Util\ByteUtil;
 use Broadlink\Util\Encryption;
@@ -30,7 +31,7 @@ class Client
      * Client constructor.
      * @param AbstractDevice $device
      */
-    public function __construct(AbstractDevice $device)
+    public function __construct(AbstractDevice $device )
     {
         $this->device = $device;
 
@@ -48,7 +49,7 @@ class Client
     {
         $this->count = ($this->count + 1) & 0xffff;
 
-        $mac = $this->device->getMacAarray();
+        $mac = $this->device->getMacArray();
 
         $packet = ByteUtil::bytearray(0x38);
         $packet[0x00] = 0x5a;
@@ -133,109 +134,6 @@ class Client
 
         $this->id = array_slice($payload, 0x00, 4);
         $this->key = array_slice($payload, 0x04, 16);
-    }
-
-
-    public static function Discover(){
-
-        $devices = array();
-
-        $s = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
-        socket_connect($s ,'8.8.8.8', 53);  // connecting to a UDP address doesn't send packets
-        socket_getsockname($s, $local_ip_address, $port);
-        socket_close($s);
-
-        $cs = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
-
-        if($cs){
-            socket_set_option($cs, SOL_SOCKET, SO_REUSEADDR, 1);
-            socket_set_option($cs, SOL_SOCKET, SO_BROADCAST, 1);
-            socket_set_option($cs, SOL_SOCKET, SO_RCVTIMEO, array('sec'=>1, 'usec'=>0));
-            socket_bind($cs, 0, 0);
-        }
-
-        $address = explode('.', $local_ip_address);
-        $packet = self::bytearray(0x30);
-
-        $timezone = (int)intval(date("Z"))/-3600;
-        $year = date("Y");
-
-        if($timezone < 0){
-            $packet[0x08] = 0xff + $timezone - 1;
-            $packet[0x09] = 0xff;
-            $packet[0x0a] = 0xff;
-            $packet[0x0b] = 0xff;
-        }
-        else{
-
-            $packet[0x08] = $timezone;
-            $packet[0x09] = 0;
-            $packet[0x0a] = 0;
-            $packet[0x0b] = 0;
-        }
-
-        $packet[0x0c] = $year & 0xff;
-        $packet[0x0d] = $year >> 8;
-        $packet[0x0e] = intval(date("i"));
-        $packet[0x0f] = intval(date("H"));
-        $subyear = substr($year, 2);
-        $packet[0x10] = intval($subyear);
-        $packet[0x11] = intval(date('N'));
-        $packet[0x12] = intval(date("d"));
-        $packet[0x13] = intval(date("m"));
-        $packet[0x18] = intval($address[0]);
-        $packet[0x19] = intval($address[1]);
-        $packet[0x1a] = intval($address[2]);
-        $packet[0x1b] = intval($address[3]);
-        $packet[0x1c] = $port & 0xff;
-        $packet[0x1d] = $port >> 8;
-        $packet[0x26] = 6;
-
-        $checksum = 0xbeaf;
-
-        for($i = 0 ; $i < sizeof($packet) ; $i++){
-            $checksum += $packet[$i];
-        }
-
-        $checksum = $checksum & 0xffff;
-
-        $packet[0x20] = $checksum & 0xff;
-        $packet[0x21] = $checksum >> 8;
-
-        socket_sendto($cs, self::byte($packet), sizeof($packet), 0, "255.255.255.255", 80);
-        while(socket_recvfrom($cs, $response, 1024, 0, $from, $port)){
-
-            $host = '';
-
-            $responsepacket = self::byte2array($response);
-
-
-            $devtype = hexdec(sprintf("%x%x", $responsepacket[0x35], $responsepacket[0x34]));
-            $host_array = array_slice($responsepacket, 0x36, 4);
-            $mac = array_slice($responsepacket, 0x3a, 6);
-
-            foreach ( array_reverse($host_array) as $ip ) {
-                $host .= $ip . ".";
-            }
-
-            $host = substr($host, 0, strlen($host) - 1);
-
-            $device = Broadlink::CreateDevice($host, $mac, 80, $devtype);
-
-            if($device != NULL){
-                $device->name = str_replace("\0", '', Broadlink::byte(array_slice($responsepacket, 0x40)));
-                array_push($devices, $device);
-            }
-
-
-        }
-
-        if($cs){
-            socket_close($cs);
-        }
-
-        return $devices;
-
     }
 
 

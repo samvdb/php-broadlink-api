@@ -18,11 +18,13 @@ class ModelHelper
     /**
      * @return string
      */
-    public function getModel(){
+    public function getModel($devType = null){
 
         $type = "Unknown";
 
-        switch ($this->type) {
+        $typeToCheck = $devType ? : $this->type;
+
+        switch ($typeToCheck) {
             case 0:
                 $type = "SP1";
                 break;

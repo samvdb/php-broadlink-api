@@ -24,8 +24,6 @@ class SP2 extends AbstractDevice
 
         $response = $this->getClient()->send(0x6a, $packet);
         $err = hexdec(sprintf("%x%x", $response[0x23], $response[0x22]));
-
-
         if($err == 0){
             $enc_payload = array_slice($response, 0x38);
 

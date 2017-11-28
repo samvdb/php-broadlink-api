@@ -32,7 +32,7 @@ class SocketHelper
         if ($this->socket) {
             socket_set_option($this->socket, SOL_SOCKET, SO_REUSEADDR, 1);
             socket_set_option($this->socket, SOL_SOCKET, SO_BROADCAST, 1);
-            socket_bind($this->socket, 0, 0);
+            socket_bind($this->socket, '0.0.0.0', 0);
         }
     }
 
@@ -50,7 +50,7 @@ class SocketHelper
      * @param int $timeout
      * @return array
      */
-    public function send($packet, $timeout = 10)
+    public function send($packet, $timeout = 100)
     {
         $this->createSocket();
 

@@ -13,6 +13,8 @@ abstract class AbstractDevice
     protected $port = 80;
     protected $mac;
 
+    protected $devType;
+
     /**
      * @var Client
      */
@@ -22,11 +24,10 @@ abstract class AbstractDevice
      * @var ModelHelper
      */
     protected $modelHelper;
-    protected $getMacAarray;
+    protected $macArray;
 
-    public function __construct($h = "", $m = "", $p = 80)
+    public function __construct($h = "", $m = "", $p = 80, $d)
     {
-
         $this->host = $h;
         $this->port = $p;
 
@@ -41,13 +42,11 @@ abstract class AbstractDevice
             foreach (array_reverse($mac_str_array) as $value) {
                 array_push($this->mac, $value);
             }
-
         }
 
+        $this->devType = is_string($d) ? hexdec($d) : $d;
 
-        $devType = is_string($this->getType()) ? hexdec($this->getType()) : $this->getType();
-
-        $this->modelHelper  = new ModelHelper($devType);
+        $this->modelHelper  = new ModelHelper($this->devType);
         $this->client = new Client($this);
 
     }
@@ -71,6 +70,14 @@ abstract class AbstractDevice
     public function getHost()
     {
         return $this->host;
+    }
+
+    /**
+     * @return string
+     */
+    public function getModel()
+    {
+        return $this->modelHelper->getModel();
     }
 
     /**
@@ -106,8 +113,21 @@ abstract class AbstractDevice
     /**
      * @return array
      */
-    public function getMacAarray()
+    public function getMacArray()
     {
         return $this->mac;
+    }
+
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+
+    public function getDeviceType(){
+        return sprintf("0x%x", $this->devType);
+    }
+
+    public function getDevModel(){
+        return $this->modelHelper->getModel($this->devType);
     }
 }
