@@ -1,0 +1,10 @@
+{
+    "name": "samvdb/php-broadlink-api",
+    "authors": [
+        {
+            "name": "Sam Van der Borght",
+            "email": "samvanderborght@gmail.com"
+        }
+    ],
+    "require": {}
+}
