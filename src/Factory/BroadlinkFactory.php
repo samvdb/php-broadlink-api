@@ -28,7 +28,7 @@ final class BroadlinkFactory
         if ($cs) {
             socket_set_option($cs, SOL_SOCKET, SO_REUSEADDR, 1);
             socket_set_option($cs, SOL_SOCKET, SO_BROADCAST, 1);
-            socket_set_option($cs, SOL_SOCKET, SO_RCVTIMEO, array('sec' => 10, 'usec' => 0));
+            socket_set_option($cs, SOL_SOCKET, SO_RCVTIMEO, array('sec' => 1, 'usec' => 0));
             socket_bind($cs, '0.0.0.0', 10001);
         }
 
