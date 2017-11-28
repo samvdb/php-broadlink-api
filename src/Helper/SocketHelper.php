@@ -8,7 +8,7 @@ use Broadlink\Util\ByteUtil;
 class SocketHelper
 {
 
-    const PORT = 80;
+    const PORT = 80008;
     protected $host;
 
     protected $port;

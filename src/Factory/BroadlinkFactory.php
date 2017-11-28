@@ -10,7 +10,7 @@ use Broadlink\Util\ByteUtil;
 
 final class BroadlinkFactory
 {
-    const PORT = 80;
+    const PORT = 80008;
 
     /**
      * @return AbstractDevice[]
